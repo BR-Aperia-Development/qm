@@ -1696,7 +1696,6 @@ export function createPiHarness(opts?: PiHarnessOptions): Harness {
           entry.ref.emit = turn.emit;
           entry.ref.scopeLabel = turn.scopeLabel;
           entry.ref.orgScopeId = turn.orgScopeId;
-          entry.ref.screenExternalContent = turn.screenExternalContent;
           entry.ref.toolApprovalGate = turn.toolApprovalGate;
 
           const activeModel = entry.agentSession.model as { id?: string; headers?: Record<string, string> } | undefined;
