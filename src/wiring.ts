@@ -57,6 +57,7 @@ import { createSkillBundleStore, type SkillBundle, type SkillBundleStore } from 
 import { createGitFetcher, resolvePackAuth, type SkillPackFetcher } from "./skills/pack-fetcher.ts";
 import { installSeedSkills } from "./skills/seed.ts";
 import { createMemoryMap, createPostgresMapFactory, type DurableMap } from "./persistence/durable-map.ts";
+import { createEgressStampStore, type EgressStamp, type EgressStampStore } from "./admin/egress-stamp-store.ts";
 import type { PersistedUiState, UiStateStore } from "./surfaces/ui-state.ts";
 import { slackUserClientFactory } from "./loops/sources/slack.ts";
 import { configurePgCaTrust } from "./persistence/pg-pool.ts";
@@ -430,6 +431,7 @@ export interface BuiltApp {
   crons: CronStore;
   credentialUsage: CredentialUsageSink;
   egressAudit: EgressAuditSink;
+  egressStamps: EgressStampStore;
   identity: IdentityService;
   keychain?: Keychain;
   serviceCreds: ServiceCredentialStore;
@@ -1170,6 +1172,7 @@ export function buildApp(
     ? createPostgresCredentialUsageSink(config.databaseUrl)
     : createCredentialUsageSink();
   const egressAudit = config.databaseUrl ? createPostgresEgressAuditSink(config.databaseUrl) : createEgressAuditSink();
+  const egressStamps = createEgressStampStore(artifactMap<EgressStamp>("egress_stamps"));
   const turnStream = createTurnStream();
   const sessionStateBus: SessionStateBus = config.databaseUrl
     ? createPostgresSessionStateBus(config.databaseUrl)
@@ -1437,6 +1440,7 @@ export function buildApp(
     deviceFlowCutover,
     featureFlags,
     credentialUsage,
+    egressStamps,
     connectorStatusCache,
     resolveConnectorClient: resolveClient,
     ...(keychain ? { keychain } : {}),
@@ -2002,6 +2006,7 @@ export function buildApp(
     crons,
     credentialUsage,
     egressAudit,
+    egressStamps,
     identity,
     workspace,
     memory,
@@ -2102,6 +2107,7 @@ export function serverDeps(
     deviceFlowCutover: built.deviceFlowCutover,
     featureFlags: built.featureFlags,
     egressAudit: built.egressAudit,
+    egressStamps: built.egressStamps,
     sessions: built.sessions,
     auditLog: built.auditLog,
     errors: built.errors,
