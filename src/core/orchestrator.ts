@@ -2655,7 +2655,11 @@ export function createOrchestrator(deps: OrchestratorDeps): Orchestrator {
             }
           }
           if (!userHarnessOverride) {
-            throw new NonRetryableTurnError(connectAccountMessage(deps.publicUrl));
+            // A refusal, not a turn failure: the surface delivers a refusal's
+            // reason verbatim, where a failed turn is wrapped in the generic
+            // "something went wrong" copy and the person never learns where
+            // to connect their account.
+            return { status: "refused", sessionId: session.id, reason: connectAccountMessage(deps.publicUrl) };
           }
         }
         const effectiveModel = userModelOverride ?? input.model;
